@@ -1,0 +1,2531 @@
+<!DOCTYPE html>
+
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Vault — Explorando as Histórias por Trás da Música</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #D94E41;
+    --red-dark: #B83A2F;
+    --red-glow: rgba(217, 78, 65, 0.3);
+    --black: #0A0A0A;
+    --dark: #111111;
+    --dark-card: #161616;
+    --dark-border: #222222;
+    --gray: #888888;
+    --light-gray: #CCCCCC;
+    --white: #F5F5F5;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+body {
+background: var(–black);
+color: var(–white);
+font-family: var(–font-body);
+overflow-x: hidden;
+-webkit-font-smoothing: antialiased;
+}
+
+/* ========== NOISE OVERLAY ========== */
+body::before {
+content: ‘’;
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23n)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 9999;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(–black); }
+::-webkit-scrollbar-thumb { background: var(–red); border-radius: 3px; }
+
+/* ========== NAVIGATION ========== */
+nav {
+position: fixed;
+top: 0; left: 0; right: 0;
+z-index: 1000;
+padding: 0 48px;
+height: 72px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: rgba(10,10,10,0.85);
+backdrop-filter: blur(20px);
+border-bottom: 1px solid var(–dark-border);
+transition: all 0.3s ease;
+}
+
+.nav-logo {
+font-family: var(–font-display);
+font-size: 28px;
+letter-spacing: 4px;
+color: var(–red);
+text-decoration: none;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.nav-logo span { color: var(–white); font-size: 14px; font-family: var(–font-mono); letter-spacing: 2px; opacity: 0.5; }
+
+.nav-links {
+display: flex;
+align-items: center;
+gap: 32px;
+list-style: none;
+}
+
+.nav-links a {
+color: var(–gray);
+text-decoration: none;
+font-size: 12px;
+font-family: var(–font-mono);
+letter-spacing: 1px;
+text-transform: uppercase;
+transition: color 0.3s;
+position: relative;
+}
+
+.nav-links a::after {
+content: ‘’;
+position: absolute;
+bottom: -4px; left: 0;
+width: 0; height: 2px;
+background: var(–red);
+transition: width 0.3s;
+}
+
+.nav-links a:hover { color: var(–white); }
+.nav-links a:hover::after { width: 100%; }
+
+.nav-cta {
+background: var(–red) !important;
+color: var(–white) !important;
+padding: 10px 20px;
+border-radius: 4px;
+font-weight: 600;
+}
+.nav-cta::after { display: none !important; }
+.nav-cta:hover { background: var(–red-dark) !important; }
+
+.mobile-menu-btn {
+display: none;
+background: none;
+border: none;
+color: var(–white);
+font-size: 24px;
+cursor: pointer;
+}
+
+/* ========== HERO ========== */
+.hero {
+min-height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+overflow: hidden;
+padding: 120px 48px 80px;
+}
+
+.hero-bg {
+position: absolute;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background:
+radial-gradient(ellipse at 20% 50%, var(–red-glow) 0%, transparent 50%),
+radial-gradient(ellipse at 80% 20%, rgba(217,78,65,0.1) 0%, transparent 40%),
+var(–black);
+}
+
+.hero-grid-lines {
+position: absolute;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background-image:
+linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+background-size: 80px 80px;
+}
+
+.hero-content {
+position: relative;
+z-index: 2;
+text-align: center;
+max-width: 900px;
+}
+
+.hero-tag {
+font-family: var(–font-mono);
+font-size: 12px;
+letter-spacing: 4px;
+text-transform: uppercase;
+color: var(–red);
+margin-bottom: 32px;
+opacity: 0;
+animation: fadeUp 0.8s ease 0.2s forwards;
+}
+
+.hero-title {
+font-family: var(–font-display);
+font-size: clamp(72px, 12vw, 160px);
+line-height: 0.9;
+letter-spacing: 8px;
+color: var(–white);
+margin-bottom: 8px;
+opacity: 0;
+animation: fadeUp 0.8s ease 0.4s forwards;
+}
+
+.hero-title .red { color: var(–red); }
+
+.hero-subtitle {
+font-family: var(–font-display);
+font-size: clamp(18px, 3vw, 32px);
+letter-spacing: 6px;
+color: var(–gray);
+margin-bottom: 40px;
+opacity: 0;
+animation: fadeUp 0.8s ease 0.6s forwards;
+}
+
+.hero-desc {
+font-size: 17px;
+line-height: 1.7;
+color: var(–gray);
+max-width: 600px;
+margin: 0 auto 48px;
+opacity: 0;
+animation: fadeUp 0.8s ease 0.8s forwards;
+}
+
+.hero-buttons {
+display: flex;
+gap: 16px;
+justify-content: center;
+flex-wrap: wrap;
+opacity: 0;
+animation: fadeUp 0.8s ease 1s forwards;
+}
+
+.btn-primary {
+background: var(–red);
+color: var(–white);
+padding: 16px 40px;
+border: none;
+border-radius: 4px;
+font-family: var(–font-mono);
+font-size: 13px;
+letter-spacing: 2px;
+text-transform: uppercase;
+cursor: pointer;
+text-decoration: none;
+transition: all 0.3s;
+display: inline-flex;
+align-items: center;
+gap: 8px;
+}
+
+.btn-primary:hover {
+background: var(–red-dark);
+transform: translateY(-2px);
+box-shadow: 0 8px 32px var(–red-glow);
+}
+
+.btn-secondary {
+background: transparent;
+color: var(–white);
+padding: 16px 40px;
+border: 1px solid var(–dark-border);
+border-radius: 4px;
+font-family: var(–font-mono);
+font-size: 13px;
+letter-spacing: 2px;
+text-transform: uppercase;
+cursor: pointer;
+text-decoration: none;
+transition: all 0.3s;
+}
+
+.btn-secondary:hover { border-color: var(–red); color: var(–red); }
+
+.hero-scroll {
+position: absolute;
+bottom: 40px;
+left: 50%;
+transform: translateX(-50%);
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 8px;
+color: var(–gray);
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 2px;
+text-transform: uppercase;
+animation: pulse 2s ease infinite;
+}
+
+.hero-scroll .line {
+width: 1px;
+height: 40px;
+background: linear-gradient(to bottom, var(–red), transparent);
+}
+
+/* ========== SECTIONS ========== */
+section { padding: 120px 48px; position: relative; }
+
+.section-header { margin-bottom: 64px; }
+
+.section-tag {
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 4px;
+text-transform: uppercase;
+color: var(–red);
+margin-bottom: 16px;
+}
+
+.section-title {
+font-family: var(–font-display);
+font-size: clamp(36px, 5vw, 64px);
+letter-spacing: 4px;
+line-height: 1;
+}
+
+.section-divider {
+width: 60px;
+height: 3px;
+background: var(–red);
+margin-top: 24px;
+}
+
+/* ========== TRAILER / COMING SOON ========== */
+#trailer {
+background: var(–dark);
+overflow: hidden;
+}
+
+.trailer-container {
+max-width: 1000px;
+margin: 0 auto;
+text-align: center;
+}
+
+.trailer-video-wrapper {
+position: relative;
+width: 100%;
+aspect-ratio: 16/9;
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+border-radius: 12px;
+overflow: hidden;
+margin-bottom: 40px;
+}
+
+.trailer-video-wrapper iframe {
+width: 100%;
+height: 100%;
+border: none;
+}
+
+.trailer-placeholder {
+width: 100%;
+height: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background:
+radial-gradient(ellipse at center, rgba(217,78,65,0.15) 0%, transparent 70%),
+var(–dark-card);
+gap: 24px;
+}
+
+.trailer-play-icon {
+width: 80px;
+height: 80px;
+border: 2px solid var(–red);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+animation: pulse 2s ease infinite;
+cursor: pointer;
+transition: all 0.3s;
+}
+
+.trailer-play-icon:hover {
+background: var(–red);
+transform: scale(1.1);
+}
+
+.trailer-play-icon::after {
+content: ‘’;
+width: 0; height: 0;
+border-style: solid;
+border-width: 14px 0 14px 24px;
+border-color: transparent transparent transparent var(–red);
+margin-left: 4px;
+transition: border-color 0.3s;
+}
+
+.trailer-play-icon:hover::after {
+border-color: transparent transparent transparent white;
+}
+
+.trailer-placeholder p {
+font-family: var(–font-display);
+font-size: 24px;
+letter-spacing: 4px;
+color: var(–gray);
+}
+
+.trailer-placeholder .trailer-sub {
+font-family: var(–font-mono);
+font-size: 12px;
+letter-spacing: 2px;
+color: var(–gray);
+opacity: 0.6;
+}
+
+.trailer-badges {
+display: flex;
+gap: 24px;
+justify-content: center;
+flex-wrap: wrap;
+}
+
+.trailer-badge {
+display: flex;
+align-items: center;
+gap: 10px;
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+padding: 12px 24px;
+border-radius: 6px;
+}
+
+.trailer-badge .badge-icon {
+font-size: 20px;
+}
+
+.trailer-badge .badge-text {
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 1px;
+text-transform: uppercase;
+color: var(–light-gray);
+}
+
+/* ========== SERIES ========== */
+#series { background: var(–black); }
+
+.series-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 24px;
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.series-card {
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+border-radius: 8px;
+padding: 40px 32px;
+transition: all 0.4s ease;
+position: relative;
+overflow: hidden;
+cursor: pointer;
+}
+
+.series-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0;
+width: 100%; height: 3px;
+background: var(–red);
+transform: scaleX(0);
+transform-origin: left;
+transition: transform 0.4s ease;
+}
+
+.series-card:hover {
+border-color: var(–red);
+transform: translateY(-4px);
+box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+}
+
+.series-card:hover::before { transform: scaleX(1); }
+
+.series-icon { font-size: 36px; margin-bottom: 20px; display: block; }
+
+.series-card h3 {
+font-family: var(–font-display);
+font-size: 28px;
+letter-spacing: 3px;
+margin-bottom: 12px;
+}
+
+.series-card p { color: var(–gray); font-size: 14px; line-height: 1.6; }
+
+.series-tag-label {
+display: inline-block;
+margin-top: 16px;
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–red);
+border: 1px solid rgba(217,78,65,0.3);
+padding: 4px 12px;
+border-radius: 3px;
+}
+
+/* ========== EPISODES ========== */
+#episodes { background: var(–dark); }
+
+.episodes-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+gap: 28px;
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.episode-card {
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+border-radius: 8px;
+overflow: hidden;
+transition: all 0.4s ease;
+cursor: pointer;
+}
+
+.episode-card:hover {
+transform: translateY(-6px);
+box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+border-color: rgba(217,78,65,0.3);
+}
+
+.episode-thumb {
+position: relative;
+width: 100%;
+aspect-ratio: 16/9;
+background: var(–dark);
+overflow: hidden;
+}
+
+.episode-thumb img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+transition: transform 0.6s ease;
+}
+
+.episode-card:hover .episode-thumb img { transform: scale(1.05); }
+
+.episode-play {
+position: absolute;
+top: 50%; left: 50%;
+transform: translate(-50%, -50%);
+width: 60px; height: 60px;
+background: var(–red);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+opacity: 0;
+transition: all 0.3s;
+}
+
+.episode-play::after {
+content: ‘’;
+width: 0; height: 0;
+border-style: solid;
+border-width: 10px 0 10px 18px;
+border-color: transparent transparent transparent white;
+margin-left: 3px;
+}
+
+.episode-card:hover .episode-play { opacity: 1; }
+
+.episode-series-label {
+position: absolute;
+top: 12px; left: 12px;
+background: var(–red);
+color: white;
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 1px;
+text-transform: uppercase;
+padding: 4px 10px;
+border-radius: 3px;
+}
+
+.episode-duration {
+position: absolute;
+bottom: 12px; right: 12px;
+background: rgba(0,0,0,0.8);
+color: white;
+font-family: var(–font-mono);
+font-size: 11px;
+padding: 3px 8px;
+border-radius: 3px;
+}
+
+.episode-info { padding: 24px; }
+
+.episode-info h3 {
+font-family: var(–font-display);
+font-size: 22px;
+letter-spacing: 2px;
+margin-bottom: 8px;
+line-height: 1.2;
+}
+
+.episode-info .episode-artist {
+color: var(–red);
+font-family: var(–font-mono);
+font-size: 12px;
+letter-spacing: 1px;
+margin-bottom: 8px;
+}
+
+.episode-info p { color: var(–gray); font-size: 13px; line-height: 1.5; }
+
+.episode-meta {
+display: flex;
+align-items: center;
+gap: 16px;
+margin-top: 16px;
+padding-top: 16px;
+border-top: 1px solid var(–dark-border);
+}
+
+.episode-meta span {
+font-family: var(–font-mono);
+font-size: 11px;
+color: var(–gray);
+letter-spacing: 1px;
+}
+
+/* ========== ARTISTS ========== */
+#artists { background: var(–black); }
+
+.artists-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+gap: 20px;
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.artist-card {
+position: relative;
+border-radius: 8px;
+overflow: hidden;
+cursor: pointer;
+aspect-ratio: 3/4;
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+transition: all 0.4s ease;
+}
+
+.artist-card:hover {
+transform: translateY(-4px);
+border-color: var(–red);
+box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+}
+
+.artist-overlay {
+position: absolute;
+bottom: 0; left: 0; right: 0;
+padding: 24px 16px 16px;
+background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+}
+
+.artist-overlay h3 {
+font-family: var(–font-display);
+font-size: 22px;
+letter-spacing: 2px;
+}
+
+.artist-overlay .artist-role {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–red);
+margin-top: 4px;
+}
+
+.artist-card .artist-initial {
+position: absolute;
+top: 50%; left: 50%;
+transform: translate(-50%, -50%);
+font-family: var(–font-display);
+font-size: 64px;
+color: var(–red);
+opacity: 0.15;
+}
+
+/* ========== MEDIA KIT / STATS ========== */
+#mediakit {
+background: var(–dark);
+position: relative;
+overflow: hidden;
+}
+
+#mediakit::before {
+content: ‘’;
+position: absolute;
+top: -200px; right: -200px;
+width: 600px; height: 600px;
+background: radial-gradient(circle, rgba(217,78,65,0.08) 0%, transparent 70%);
+pointer-events: none;
+}
+
+.mediakit-content {
+max-width: 1200px;
+margin: 0 auto;
+position: relative;
+z-index: 2;
+}
+
+.mediakit-intro {
+max-width: 700px;
+margin-bottom: 64px;
+}
+
+.mediakit-intro p {
+color: var(–gray);
+font-size: 17px;
+line-height: 1.7;
+margin-top: 20px;
+}
+
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 24px;
+margin-bottom: 64px;
+}
+
+.stat-card {
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+border-radius: 8px;
+padding: 36px 28px;
+text-align: center;
+position: relative;
+overflow: hidden;
+transition: all 0.4s;
+}
+
+.stat-card:hover {
+border-color: var(–red);
+transform: translateY(-4px);
+}
+
+.stat-card::after {
+content: ‘’;
+position: absolute;
+bottom: 0; left: 0;
+width: 100%; height: 3px;
+background: var(–red);
+transform: scaleX(0);
+transition: transform 0.4s;
+}
+
+.stat-card:hover::after { transform: scaleX(1); }
+
+.stat-card .stat-number {
+font-family: var(–font-display);
+font-size: 52px;
+color: var(–red);
+letter-spacing: 2px;
+line-height: 1;
+}
+
+.stat-card .stat-label {
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–gray);
+margin-top: 12px;
+}
+
+.audience-section {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 48px;
+margin-top: 24px;
+}
+
+.audience-card {
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+border-radius: 8px;
+padding: 36px;
+}
+
+.audience-card h4 {
+font-family: var(–font-display);
+font-size: 24px;
+letter-spacing: 3px;
+margin-bottom: 20px;
+color: var(–white);
+}
+
+.audience-bar {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 14px;
+}
+
+.audience-bar-label {
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 1px;
+color: var(–light-gray);
+width: 100px;
+flex-shrink: 0;
+}
+
+.audience-bar-track {
+flex: 1;
+height: 8px;
+background: var(–dark-border);
+border-radius: 4px;
+overflow: hidden;
+}
+
+.audience-bar-fill {
+height: 100%;
+background: var(–red);
+border-radius: 4px;
+transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+width: 0;
+}
+
+.audience-bar-fill.animated { /* width set inline */ }
+
+.audience-bar-value {
+font-family: var(–font-mono);
+font-size: 12px;
+color: var(–red);
+width: 40px;
+text-align: right;
+}
+
+.reach-list {
+list-style: none;
+}
+
+.reach-list li {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 12px 0;
+border-bottom: 1px solid var(–dark-border);
+font-size: 14px;
+color: var(–light-gray);
+}
+
+.reach-list li:last-child { border-bottom: none; }
+
+.reach-dot {
+width: 8px; height: 8px;
+background: var(–red);
+border-radius: 50%;
+flex-shrink: 0;
+}
+
+/* ========== SPONSORS / PARTNERSHIPS ========== */
+#sponsors {
+background: var(–black);
+position: relative;
+}
+
+.sponsors-content {
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.sponsors-intro {
+max-width: 700px;
+margin-bottom: 64px;
+}
+
+.sponsors-intro p {
+color: var(–gray);
+font-size: 17px;
+line-height: 1.7;
+margin-top: 20px;
+}
+
+.sponsor-tiers {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 24px;
+margin-bottom: 64px;
+}
+
+.sponsor-tier {
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+border-radius: 12px;
+padding: 48px 36px;
+position: relative;
+overflow: hidden;
+transition: all 0.4s;
+}
+
+.sponsor-tier:hover {
+transform: translateY(-6px);
+box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.sponsor-tier.featured {
+border-color: var(–red);
+background: linear-gradient(180deg, rgba(217,78,65,0.08) 0%, var(–dark-card) 100%);
+}
+
+.sponsor-tier.featured::before {
+content: ‘MAIS POPULAR’;
+position: absolute;
+top: 0; left: 0; right: 0;
+background: var(–red);
+color: white;
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 2px;
+text-align: center;
+padding: 6px;
+}
+
+.tier-icon {
+font-size: 32px;
+margin-bottom: 20px;
+display: block;
+}
+
+.tier-name {
+font-family: var(–font-display);
+font-size: 32px;
+letter-spacing: 3px;
+margin-bottom: 8px;
+}
+
+.tier-desc {
+color: var(–gray);
+font-size: 14px;
+line-height: 1.5;
+margin-bottom: 28px;
+min-height: 42px;
+}
+
+.tier-features {
+list-style: none;
+}
+
+.tier-features li {
+display: flex;
+align-items: flex-start;
+gap: 10px;
+padding: 10px 0;
+font-size: 14px;
+color: var(–light-gray);
+border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.tier-features li:last-child { border-bottom: none; }
+
+.tier-check {
+color: var(–red);
+font-weight: bold;
+flex-shrink: 0;
+margin-top: 1px;
+}
+
+.tier-cta {
+margin-top: 32px;
+display: block;
+width: 100%;
+text-align: center;
+padding: 14px;
+border-radius: 6px;
+font-family: var(–font-mono);
+font-size: 12px;
+letter-spacing: 2px;
+text-transform: uppercase;
+text-decoration: none;
+transition: all 0.3s;
+cursor: pointer;
+border: none;
+}
+
+.tier-cta-primary {
+background: var(–red);
+color: white;
+}
+
+.tier-cta-primary:hover {
+background: var(–red-dark);
+transform: translateY(-2px);
+}
+
+.tier-cta-secondary {
+background: transparent;
+border: 1px solid var(–dark-border) !important;
+color: var(–white);
+}
+
+.tier-cta-secondary:hover {
+border-color: var(–red) !important;
+color: var(–red);
+}
+
+.sponsors-logos-section {
+text-align: center;
+padding: 48px 0 0;
+border-top: 1px solid var(–dark-border);
+}
+
+.sponsors-logos-section p {
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: var(–gray);
+margin-bottom: 32px;
+}
+
+.sponsor-logos-placeholder {
+display: flex;
+gap: 40px;
+justify-content: center;
+flex-wrap: wrap;
+opacity: 0.3;
+}
+
+.sponsor-logo-box {
+width: 120px;
+height: 50px;
+border: 1px dashed var(–dark-border);
+border-radius: 6px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 1px;
+color: var(–gray);
+}
+
+/* ========== ABOUT ========== */
+#about { background: var(–dark); }
+
+.about-content {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 80px;
+max-width: 1200px;
+margin: 0 auto;
+align-items: center;
+}
+
+.about-text p {
+color: var(–gray);
+font-size: 16px;
+line-height: 1.8;
+margin-bottom: 24px;
+}
+
+.about-stats {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 32px;
+margin-top: 48px;
+}
+
+.about-stat-item {
+border-left: 2px solid var(–red);
+padding-left: 20px;
+}
+
+.about-stat-item .stat-number {
+font-family: var(–font-display);
+font-size: 42px;
+color: var(–red);
+letter-spacing: 2px;
+}
+
+.about-stat-item .stat-label {
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–gray);
+margin-top: 4px;
+}
+
+.about-visual {
+position: relative;
+height: 500px;
+}
+
+.about-visual-box {
+position: absolute;
+border-radius: 8px;
+overflow: hidden;
+}
+
+.about-visual-box.box1 {
+top: 0; left: 0;
+width: 70%; height: 65%;
+background: var(–red);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.about-visual-box.box1 span {
+font-family: var(–font-display);
+font-size: 72px;
+letter-spacing: 6px;
+color: white;
+opacity: 0.9;
+}
+
+.about-visual-box.box2 {
+bottom: 0; right: 0;
+width: 65%; height: 55%;
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+display: flex;
+flex-direction: column;
+justify-content: center;
+padding: 32px;
+}
+
+.box2-quote {
+font-size: 18px;
+font-style: italic;
+color: var(–light-gray);
+line-height: 1.6;
+margin-bottom: 16px;
+}
+
+.box2-author {
+font-family: var(–font-mono);
+font-size: 12px;
+color: var(–red);
+letter-spacing: 1px;
+}
+
+/* ========== CONTACT FORM ========== */
+#contact {
+background: var(–black);
+position: relative;
+}
+
+#contact::before {
+content: ‘’;
+position: absolute;
+bottom: -100px; left: -100px;
+width: 400px; height: 400px;
+background: radial-gradient(circle, rgba(217,78,65,0.06) 0%, transparent 70%);
+pointer-events: none;
+}
+
+.contact-layout {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 80px;
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.contact-info h3 {
+font-family: var(–font-display);
+font-size: 28px;
+letter-spacing: 3px;
+margin-bottom: 20px;
+}
+
+.contact-info p {
+color: var(–gray);
+font-size: 16px;
+line-height: 1.7;
+margin-bottom: 32px;
+}
+
+.contact-methods {
+list-style: none;
+}
+
+.contact-methods li {
+display: flex;
+align-items: center;
+gap: 16px;
+padding: 16px 0;
+border-bottom: 1px solid var(–dark-border);
+}
+
+.contact-methods li:last-child { border-bottom: none; }
+
+.contact-icon {
+width: 44px; height: 44px;
+background: rgba(217,78,65,0.1);
+border: 1px solid rgba(217,78,65,0.2);
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+flex-shrink: 0;
+}
+
+.contact-method-info .cm-label {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–gray);
+margin-bottom: 4px;
+}
+
+.contact-method-info .cm-value {
+color: var(–white);
+font-size: 15px;
+}
+
+.contact-form-card {
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+border-radius: 12px;
+padding: 48px;
+}
+
+.contact-form-card h3 {
+font-family: var(–font-display);
+font-size: 28px;
+letter-spacing: 3px;
+margin-bottom: 8px;
+}
+
+.contact-form-card > p {
+color: var(–gray);
+font-size: 14px;
+margin-bottom: 32px;
+}
+
+.form-group {
+margin-bottom: 20px;
+}
+
+.form-group label {
+display: block;
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–gray);
+margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+width: 100%;
+padding: 14px 16px;
+background: var(–dark);
+border: 1px solid var(–dark-border);
+border-radius: 6px;
+color: var(–white);
+font-family: var(–font-body);
+font-size: 14px;
+outline: none;
+transition: border-color 0.3s;
+-webkit-appearance: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+border-color: var(–red);
+}
+
+.form-group textarea {
+min-height: 120px;
+resize: vertical;
+}
+
+.form-group select {
+cursor: pointer;
+}
+
+.form-group select option {
+background: var(–dark);
+color: var(–white);
+}
+
+.form-row {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 16px;
+}
+
+.form-submit {
+width: 100%;
+padding: 16px;
+background: var(–red);
+color: white;
+border: none;
+border-radius: 6px;
+font-family: var(–font-mono);
+font-size: 13px;
+letter-spacing: 2px;
+text-transform: uppercase;
+cursor: pointer;
+transition: all 0.3s;
+margin-top: 8px;
+}
+
+.form-submit:hover {
+background: var(–red-dark);
+transform: translateY(-2px);
+box-shadow: 0 8px 32px var(–red-glow);
+}
+
+.form-success {
+display: none;
+text-align: center;
+padding: 40px 20px;
+}
+
+.form-success.active {
+display: block;
+}
+
+.form-success .success-icon {
+font-size: 48px;
+margin-bottom: 16px;
+}
+
+.form-success h4 {
+font-family: var(–font-display);
+font-size: 28px;
+letter-spacing: 3px;
+margin-bottom: 8px;
+}
+
+.form-success p {
+color: var(–gray);
+font-size: 14px;
+}
+
+/* ========== NEWSLETTER ========== */
+#newsletter {
+background: var(–dark);
+border-top: 1px solid var(–dark-border);
+border-bottom: 1px solid var(–dark-border);
+}
+
+.newsletter-content {
+max-width: 640px;
+margin: 0 auto;
+text-align: center;
+}
+
+.newsletter-content .section-title { margin-bottom: 16px; }
+
+.newsletter-content p {
+color: var(–gray);
+font-size: 16px;
+line-height: 1.7;
+margin-bottom: 40px;
+}
+
+.newsletter-form {
+display: flex;
+gap: 12px;
+max-width: 480px;
+margin: 0 auto;
+}
+
+.newsletter-form input {
+flex: 1;
+padding: 16px 20px;
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+border-radius: 4px;
+color: var(–white);
+font-family: var(–font-body);
+font-size: 14px;
+outline: none;
+transition: border-color 0.3s;
+}
+
+.newsletter-form input::placeholder { color: var(–gray); }
+.newsletter-form input:focus { border-color: var(–red); }
+
+.newsletter-form button {
+padding: 16px 28px;
+background: var(–red);
+color: white;
+border: none;
+border-radius: 4px;
+font-family: var(–font-mono);
+font-size: 12px;
+letter-spacing: 2px;
+text-transform: uppercase;
+cursor: pointer;
+transition: all 0.3s;
+white-space: nowrap;
+}
+
+.newsletter-form button:hover { background: var(–red-dark); }
+
+.newsletter-note {
+font-family: var(–font-mono);
+font-size: 11px;
+color: var(–gray);
+margin-top: 16px;
+letter-spacing: 1px;
+}
+
+/* ========== FOOTER ========== */
+footer {
+background: var(–black);
+padding: 64px 48px 32px;
+border-top: 1px solid var(–dark-border);
+}
+
+.footer-grid {
+display: grid;
+grid-template-columns: 2fr 1fr 1fr 1fr;
+gap: 48px;
+max-width: 1200px;
+margin: 0 auto 48px;
+}
+
+.footer-brand p {
+color: var(–gray);
+font-size: 14px;
+line-height: 1.6;
+max-width: 300px;
+margin-top: 16px;
+}
+
+.footer-col h4 {
+font-family: var(–font-display);
+font-size: 18px;
+letter-spacing: 3px;
+margin-bottom: 20px;
+color: var(–white);
+}
+
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 10px; }
+
+.footer-col ul a {
+color: var(–gray);
+text-decoration: none;
+font-size: 14px;
+transition: color 0.3s;
+}
+
+.footer-col ul a:hover { color: var(–red); }
+
+.footer-social {
+display: flex;
+gap: 16px;
+margin-top: 20px;
+}
+
+.footer-social a {
+width: 40px; height: 40px;
+border-radius: 50%;
+border: 1px solid var(–dark-border);
+display: flex;
+align-items: center;
+justify-content: center;
+color: var(–gray);
+text-decoration: none;
+font-size: 16px;
+transition: all 0.3s;
+}
+
+.footer-social a:hover {
+border-color: var(–red);
+color: var(–red);
+background: rgba(217,78,65,0.1);
+}
+
+.footer-bottom {
+max-width: 1200px;
+margin: 0 auto;
+padding-top: 24px;
+border-top: 1px solid var(–dark-border);
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.footer-bottom p {
+font-family: var(–font-mono);
+font-size: 11px;
+color: var(–gray);
+letter-spacing: 1px;
+}
+
+/* ========== MODALS ========== */
+.modal-overlay {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(0,0,0,0.92);
+z-index: 10000;
+display: none;
+align-items: center;
+justify-content: center;
+opacity: 0;
+transition: opacity 0.3s;
+}
+
+.modal-overlay.active { display: flex; opacity: 1; }
+
+.modal-content {
+width: 90%;
+max-width: 900px;
+aspect-ratio: 16/9;
+position: relative;
+}
+
+.modal-content iframe { width: 100%; height: 100%; border: none; border-radius: 8px; }
+
+.modal-close {
+position: absolute;
+top: -40px; right: 0;
+background: none;
+border: none;
+color: var(–white);
+font-size: 28px;
+cursor: pointer;
+font-family: var(–font-mono);
+transition: color 0.3s;
+}
+
+.modal-close:hover { color: var(–red); }
+
+.artist-modal-overlay {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(0,0,0,0.92);
+z-index: 10000;
+display: none;
+align-items: center;
+justify-content: center;
+backdrop-filter: blur(10px);
+}
+
+.artist-modal-overlay.active { display: flex; }
+
+.artist-modal {
+background: var(–dark-card);
+border: 1px solid var(–dark-border);
+border-radius: 12px;
+width: 90%;
+max-width: 680px;
+max-height: 85vh;
+overflow-y: auto;
+position: relative;
+}
+
+.artist-modal-header {
+padding: 48px 40px 32px;
+display: flex;
+gap: 32px;
+align-items: center;
+border-bottom: 1px solid var(–dark-border);
+}
+
+.artist-modal-avatar {
+width: 120px; height: 120px;
+border-radius: 50%;
+background: var(–red);
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: var(–font-display);
+font-size: 48px;
+color: white;
+flex-shrink: 0;
+}
+
+.artist-modal-name { font-family: var(–font-display); font-size: 36px; letter-spacing: 3px; }
+.artist-modal-role { font-family: var(–font-mono); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(–red); margin-top: 8px; }
+
+.artist-modal-body { padding: 32px 40px 40px; }
+.artist-modal-body p { color: var(–gray); font-size: 15px; line-height: 1.7; margin-bottom: 24px; }
+
+.artist-modal-episodes h4 { font-family: var(–font-display); font-size: 20px; letter-spacing: 2px; margin-bottom: 16px; color: var(–white); }
+
+.artist-modal-ep-item {
+display: flex;
+align-items: center;
+gap: 16px;
+padding: 12px 0;
+border-bottom: 1px solid var(–dark-border);
+cursor: pointer;
+transition: all 0.3s;
+}
+
+.artist-modal-ep-item:hover { padding-left: 8px; }
+.artist-modal-ep-item .ep-dot { width: 8px; height: 8px; background: var(–red); border-radius: 50%; flex-shrink: 0; }
+.artist-modal-ep-item span { color: var(–light-gray); font-size: 14px; }
+.artist-modal .modal-close { position: absolute; top: 16px; right: 20px; }
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 0.4; }
+50% { opacity: 1; }
+}
+
+.animate-on-scroll {
+opacity: 0;
+transform: translateY(40px);
+transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-on-scroll.visible {
+opacity: 1;
+transform: translateY(0);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+section { padding: 80px 32px; }
+.about-content, .contact-layout { grid-template-columns: 1fr; gap: 40px; }
+.about-visual { height: 400px; }
+.footer-grid { grid-template-columns: 1fr 1fr; }
+.stats-grid { grid-template-columns: repeat(2, 1fr); }
+.sponsor-tiers { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+.audience-section { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+nav { padding: 0 24px; }
+.nav-links { display: none; }
+.mobile-menu-btn { display: block; }
+section { padding: 64px 20px; }
+.hero { padding: 100px 20px 60px; }
+.episodes-grid { grid-template-columns: 1fr; }
+.artists-grid { grid-template-columns: repeat(2, 1fr); }
+.about-visual { height: 300px; }
+.newsletter-form { flex-direction: column; }
+.footer-grid { grid-template-columns: 1fr; gap: 32px; }
+.footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+.hero-buttons { flex-direction: column; align-items: center; }
+.form-row { grid-template-columns: 1fr; }
+.contact-form-card { padding: 32px 24px; }
+.trailer-badges { flex-direction: column; align-items: center; }
+}
+
+@media (max-width: 480px) {
+.artists-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.series-grid { grid-template-columns: 1fr; }
+.stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ========== MOBILE MENU ========== */
+.mobile-nav {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(10,10,10,0.98);
+z-index: 9998;
+display: none;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 32px;
+}
+
+.mobile-nav.active { display: flex; }
+
+.mobile-nav a {
+font-family: var(–font-display);
+font-size: 36px;
+letter-spacing: 4px;
+color: var(–white);
+text-decoration: none;
+transition: color 0.3s;
+}
+
+.mobile-nav a:hover { color: var(–red); }
+</style>
+
+</head>
+<body>
+
+<!-- NAVIGATION -->
+
+<nav>
+  <a href="#" class="nav-logo">THE V<span style="color:var(--red)">.</span>AULT <span>AO</span></a>
+  <ul class="nav-links">
+    <li><a href="#trailer">Trailer</a></li>
+    <li><a href="#series">Séries</a></li>
+    <li><a href="#episodes">Episódios</a></li>
+    <li><a href="#artists">Artistas</a></li>
+    <li><a href="#sponsors">Parcerias</a></li>
+    <li><a href="#contact">Contacto</a></li>
+    <li><a href="#newsletter" class="nav-cta">Inscrever</a></li>
+  </ul>
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+</nav>
+
+<!-- MOBILE MENU -->
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="#trailer" onclick="toggleMobileMenu()">Trailer</a>
+  <a href="#series" onclick="toggleMobileMenu()">Séries</a>
+  <a href="#episodes" onclick="toggleMobileMenu()">Episódios</a>
+  <a href="#artists" onclick="toggleMobileMenu()">Artistas</a>
+  <a href="#sponsors" onclick="toggleMobileMenu()">Parcerias</a>
+  <a href="#contact" onclick="toggleMobileMenu()">Contacto</a>
+  <a href="#newsletter" onclick="toggleMobileMenu()">Inscrever</a>
+</div>
+
+<!-- HERO -->
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="hero-content">
+    <p class="hero-tag">Explorando as Histórias por Trás da Música</p>
+    <h1 class="hero-title">THE <span class="red">V</span>AULT</h1>
+    <p class="hero-subtitle">Onde a Música Revela os Seus Segredos</p>
+    <p class="hero-desc">
+      Mergulha nas histórias, inspirações e processos criativos por trás das maiores músicas de Angola e do mundo lusófono. Direto da boca dos artistas.
+    </p>
+    <div class="hero-buttons">
+      <a href="#trailer" class="btn-primary">▶ Ver Trailer</a>
+      <a href="#sponsors" class="btn-secondary">Ser Parceiro</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="line"></div>
+  </div>
+</section>
+
+<!-- COMING SOON TRAILER -->
+
+<section id="trailer">
+  <div class="trailer-container animate-on-scroll">
+    <div class="section-header" style="text-align:center;">
+      <p class="section-tag">// Em Breve</p>
+      <h2 class="section-title">PRIMEIRO OLHAR</h2>
+      <div class="section-divider" style="margin:24px auto 0;"></div>
+    </div>
+    <div style="height:48px;"></div>
+
+```
+<div class="trailer-video-wrapper" id="trailerWrapper">
+  <!-- Replace the placeholder below with your YouTube trailer embed -->
+  <div class="trailer-placeholder" id="trailerPlaceholder">
+    <div class="trailer-play-icon" onclick="loadTrailer()"></div>
+    <p>TRAILER EM BREVE</p>
+    <span class="trailer-sub">O primeiro olhar ao The Vault está quase pronto</span>
+  </div>
+  <!-- When you have a trailer, uncomment this and add your YouTube ID: -->
+  <!-- <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" allowfullscreen></iframe> -->
+</div>
+
+<div class="trailer-badges">
+  <div class="trailer-badge">
+    <span class="badge-icon">🎬</span>
+    <span class="badge-text">6 Séries Originais</span>
+  </div>
+  <div class="trailer-badge">
+    <span class="badge-icon">🎤</span>
+    <span class="badge-text">40+ Artistas Confirmados</span>
+  </div>
+  <div class="trailer-badge">
+    <span class="badge-icon">🇦🇴</span>
+    <span class="badge-text">Made in Angola</span>
+  </div>
+  <div class="trailer-badge">
+    <span class="badge-icon">📺</span>
+    <span class="badge-text">YouTube • Instagram • TikTok</span>
+  </div>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- SERIES -->
+
+<section id="series">
+  <div class="section-header animate-on-scroll">
+    <p class="section-tag">// Formatos</p>
+    <h2 class="section-title">AS NOSSAS SÉRIES</h2>
+    <div class="section-divider"></div>
+  </div>
+  <div class="series-grid">
+    <div class="series-card animate-on-scroll">
+      <span class="series-icon">🎤</span>
+      <h3>VERIFIED</h3>
+      <p>Os artistas explicam o significado por trás das letras das suas músicas mais icónicas. Verso a verso.</p>
+      <span class="series-tag-label">Letras & Significados</span>
+    </div>
+    <div class="series-card animate-on-scroll">
+      <span class="series-icon">🎬</span>
+      <h3>FRAMEWORK</h3>
+      <p>Diretores e filmmakers revelam os bastidores dos videoclipes mais marcantes.</p>
+      <span class="series-tag-label">Behind the Video</span>
+    </div>
+    <div class="series-card animate-on-scroll">
+      <span class="series-icon">🎹</span>
+      <h3>DECONSTRUCTED</h3>
+      <p>Produtores musicais desmontam os beats que definiram gerações. Camada por camada.</p>
+      <span class="series-tag-label">Produção Musical</span>
+    </div>
+    <div class="series-card animate-on-scroll">
+      <span class="series-icon">👑</span>
+      <h3>THE COSIGN</h3>
+      <p>Lendas da música angolana reagem e avaliam a nova geração. O passado encontra o futuro.</p>
+      <span class="series-tag-label">OGs & Nova Geração</span>
+    </div>
+    <div class="series-card animate-on-scroll">
+      <span class="series-icon">🎙️</span>
+      <h3>OPEN MIC</h3>
+      <p>Performances ao vivo e acústicas exclusivas. Sem filtros — apenas o talento puro.</p>
+      <span class="series-tag-label">Live Performance</span>
+    </div>
+    <div class="series-card animate-on-scroll">
+      <span class="series-icon">📸</span>
+      <h3>O COFRE</h3>
+      <p>Histórias nunca contadas da indústria musical angolana. Momentos que marcaram a cultura.</p>
+      <span class="series-tag-label">Cultura & História</span>
+    </div>
+  </div>
+</section>
+
+<!-- EPISODES -->
+
+<section id="episodes">
+  <div class="section-header animate-on-scroll">
+    <p class="section-tag">// Referências de Conteúdo</p>
+    <h2 class="section-title">ESTILO DE EPISÓDIOS</h2>
+    <div class="section-divider"></div>
+  </div>
+  <div class="episodes-grid">
+    <div class="episode-card animate-on-scroll" onclick="openVideo('https://www.youtube.com/embed/-BzvCCzH-n0')">
+      <div class="episode-thumb">
+        <img src="https://img.youtube.com/vi/-BzvCCzH-n0/maxresdefault.jpg" alt="Episode" loading="lazy">
+        <div class="episode-play"></div>
+        <span class="episode-series-label">Verified</span>
+        <span class="episode-duration">12:34</span>
+      </div>
+      <div class="episode-info">
+        <p class="episode-artist">Billie Eilish</p>
+        <h3>"IDONTWANNABEYOUANYMORE" — LYRICS & MEANING</h3>
+        <p>Artistas explicam as emoções e histórias por trás das suas músicas.</p>
+        <div class="episode-meta"><span>Referência Visual</span></div>
+      </div>
+    </div>
+
+```
+<div class="episode-card animate-on-scroll" onclick="openVideo('https://www.youtube.com/embed/KR6OWVWDIQw')">
+  <div class="episode-thumb">
+    <img src="https://img.youtube.com/vi/KR6OWVWDIQw/maxresdefault.jpg" alt="Episode" loading="lazy">
+    <div class="episode-play"></div>
+    <span class="episode-series-label">Framework</span>
+    <span class="episode-duration">15:22</span>
+  </div>
+  <div class="episode-info">
+    <p class="episode-artist">Colin Tilley</p>
+    <h3>THE MAKING OF "WILD THOUGHTS" VIDEO</h3>
+    <p>Diretores revelam os bastidores dos videoclipes mais marcantes.</p>
+    <div class="episode-meta"><span>Referência Visual</span></div>
+  </div>
+</div>
+
+<div class="episode-card animate-on-scroll" onclick="openVideo('https://www.youtube.com/embed/y1W4JMDaq50')">
+  <div class="episode-thumb">
+    <img src="https://img.youtube.com/vi/y1W4JMDaq50/maxresdefault.jpg" alt="Episode" loading="lazy">
+    <div class="episode-play"></div>
+    <span class="episode-series-label">The Cosign</span>
+    <span class="episode-duration">18:45</span>
+  </div>
+  <div class="episode-info">
+    <p class="episode-artist">Ice Cube</p>
+    <h3>ICE CUBE REACTS TO NEW WEST COAST RAPPERS</h3>
+    <p>Lendas da música avaliam e validam a nova geração.</p>
+    <div class="episode-meta"><span>Referência Visual</span></div>
+  </div>
+</div>
+
+<div class="episode-card animate-on-scroll" onclick="openVideo('https://www.youtube.com/embed/Qa1IaUywiO8')">
+  <div class="episode-thumb">
+    <img src="https://img.youtube.com/vi/Qa1IaUywiO8/maxresdefault.jpg" alt="Episode" loading="lazy">
+    <div class="episode-play"></div>
+    <span class="episode-series-label">Open Mic</span>
+    <span class="episode-duration">5:17</span>
+  </div>
+  <div class="episode-info">
+    <p class="episode-artist">Tems</p>
+    <h3>TEMS "HIGHER" — LIVE PERFORMANCE</h3>
+    <p>Performances íntimas e poderosas, sem filtros.</p>
+    <div class="episode-meta"><span>Referência Visual</span></div>
+  </div>
+</div>
+
+<div class="episode-card animate-on-scroll" onclick="openVideo('https://www.youtube.com/embed/sKtCP6htHqw')">
+  <div class="episode-thumb">
+    <img src="https://img.youtube.com/vi/sKtCP6htHqw/maxresdefault.jpg" alt="Episode" loading="lazy">
+    <div class="episode-play"></div>
+    <span class="episode-series-label">Open Mic</span>
+    <span class="episode-duration">4:02</span>
+  </div>
+  <div class="episode-info">
+    <p class="episode-artist">Teddy Swims</p>
+    <h3>TEDDY SWIMS — BILLIE EILISH COVER</h3>
+    <p>Interpretações que mostram o poder da voz e emoção pura.</p>
+    <div class="episode-meta"><span>Referência Visual</span></div>
+  </div>
+</div>
+
+<!-- COMING SOON -->
+<div class="episode-card animate-on-scroll" style="display:flex;align-items:center;justify-content:center;min-height:300px;border-style:dashed;">
+  <div style="text-align:center;padding:40px;">
+    <p style="font-family:var(--font-display);font-size:36px;color:var(--red);letter-spacing:4px;margin-bottom:12px;">EM BREVE</p>
+    <p style="color:var(--gray);font-size:14px;line-height:1.6;">Os episódios angolanos do The Vault estão a ser produzidos.</p>
+    <a href="#newsletter" class="btn-primary" style="margin-top:24px;display:inline-flex;">Avisa-me</a>
+  </div>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- ARTISTS -->
+
+<section id="artists">
+  <div class="section-header animate-on-scroll">
+    <p class="section-tag">// Elenco</p>
+    <h2 class="section-title">ARTISTAS & CONVIDADOS</h2>
+    <div class="section-divider"></div>
+  </div>
+  <div class="artists-grid" id="artistsGrid"></div>
+</section>
+
+<!-- MEDIA KIT / STATS -->
+
+<section id="mediakit">
+  <div class="mediakit-content">
+    <div class="mediakit-intro animate-on-scroll">
+      <p class="section-tag">// Media Kit</p>
+      <h2 class="section-title">THE VAULT EM NÚMEROS</h2>
+      <div class="section-divider"></div>
+      <p>Uma plataforma que está a construir o maior arquivo audiovisual da música angolana. Aqui estão os dados que mostram o nosso potencial.</p>
+    </div>
+
+```
+<div class="stats-grid">
+  <div class="stat-card animate-on-scroll">
+    <p class="stat-number">40+</p>
+    <p class="stat-label">Artistas Confirmados</p>
+  </div>
+  <div class="stat-card animate-on-scroll">
+    <p class="stat-number">6</p>
+    <p class="stat-label">Séries Originais</p>
+  </div>
+  <div class="stat-card animate-on-scroll">
+    <p class="stat-number">5</p>
+    <p class="stat-label">Plataformas</p>
+  </div>
+  <div class="stat-card animate-on-scroll">
+    <p class="stat-number">30M+</p>
+    <p class="stat-label">Público Potencial</p>
+  </div>
+</div>
+
+<div class="audience-section">
+  <div class="audience-card animate-on-scroll">
+    <h4>PÚBLICO-ALVO</h4>
+    <div class="audience-bar">
+      <span class="audience-bar-label">18-24 anos</span>
+      <div class="audience-bar-track"><div class="audience-bar-fill" data-width="45%"></div></div>
+      <span class="audience-bar-value">45%</span>
+    </div>
+    <div class="audience-bar">
+      <span class="audience-bar-label">25-34 anos</span>
+      <div class="audience-bar-track"><div class="audience-bar-fill" data-width="35%"></div></div>
+      <span class="audience-bar-value">35%</span>
+    </div>
+    <div class="audience-bar">
+      <span class="audience-bar-label">35-44 anos</span>
+      <div class="audience-bar-track"><div class="audience-bar-fill" data-width="15%"></div></div>
+      <span class="audience-bar-value">15%</span>
+    </div>
+    <div class="audience-bar">
+      <span class="audience-bar-label">45+ anos</span>
+      <div class="audience-bar-track"><div class="audience-bar-fill" data-width="5%"></div></div>
+      <span class="audience-bar-value">5%</span>
+    </div>
+  </div>
+
+  <div class="audience-card animate-on-scroll">
+    <h4>ALCANCE & MERCADO</h4>
+    <ul class="reach-list">
+      <li><span class="reach-dot"></span> Angola — mercado principal (35M+ população)</li>
+      <li><span class="reach-dot"></span> Moçambique, Cabo Verde, Guiné-Bissau, São Tomé</li>
+      <li><span class="reach-dot"></span> Diáspora angolana (Portugal, Brasil, EUA, UK)</li>
+      <li><span class="reach-dot"></span> Comunidade lusófona global (250M+ falantes)</li>
+      <li><span class="reach-dot"></span> Fãs de música africana worldwide</li>
+    </ul>
+  </div>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- SPONSORS / PARTNERSHIPS -->
+
+<section id="sponsors">
+  <div class="sponsors-content">
+    <div class="sponsors-intro animate-on-scroll">
+      <p class="section-tag">// Parcerias</p>
+      <h2 class="section-title">TORNA-TE PARCEIRO</h2>
+      <div class="section-divider"></div>
+      <p>O The Vault é mais do que uma plataforma — é um movimento cultural. Associa a tua marca às histórias que definem a música angolana e chega a uma audiência jovem, engajada e apaixonada.</p>
+    </div>
+
+```
+<div class="sponsor-tiers">
+  <!-- TIER 1 -->
+  <div class="sponsor-tier animate-on-scroll">
+    <span class="tier-icon">🔗</span>
+    <h3 class="tier-name">SUPPORTER</h3>
+    <p class="tier-desc">Associa a tua marca ao The Vault com visibilidade digital.</p>
+    <ul class="tier-features">
+      <li><span class="tier-check">✓</span> Logo no website do The Vault</li>
+      <li><span class="tier-check">✓</span> Menção nas redes sociais (1x/mês)</li>
+      <li><span class="tier-check">✓</span> Logo no final dos episódios</li>
+      <li><span class="tier-check">✓</span> Acesso a conteúdo exclusivo</li>
+    </ul>
+    <a href="#contact" class="tier-cta tier-cta-secondary">Saber Mais</a>
+  </div>
+
+  <!-- TIER 2 (FEATURED) -->
+  <div class="sponsor-tier featured animate-on-scroll">
+    <span class="tier-icon">⚡</span>
+    <h3 class="tier-name">PARTNER</h3>
+    <p class="tier-desc">Integração ativa da marca nos conteúdos e eventos.</p>
+    <ul class="tier-features">
+      <li><span class="tier-check">✓</span> Tudo do plano Supporter</li>
+      <li><span class="tier-check">✓</span> Product placement no set</li>
+      <li><span class="tier-check">✓</span> Menção do host em cada episódio</li>
+      <li><span class="tier-check">✓</span> 2 posts patrocinados/mês</li>
+      <li><span class="tier-check">✓</span> Branding no set design</li>
+      <li><span class="tier-check">✓</span> Acesso a eventos exclusivos</li>
+    </ul>
+    <a href="#contact" class="tier-cta tier-cta-primary">Quero ser Partner</a>
+  </div>
+
+  <!-- TIER 3 -->
+  <div class="sponsor-tier animate-on-scroll">
+    <span class="tier-icon">👑</span>
+    <h3 class="tier-name">TITLE SPONSOR</h3>
+    <p class="tier-desc">A tua marca como apresentador oficial do The Vault.</p>
+    <ul class="tier-features">
+      <li><span class="tier-check">✓</span> Tudo dos planos anteriores</li>
+      <li><span class="tier-check">✓</span> "Apresentado por [Marca]" em tudo</li>
+      <li><span class="tier-check">✓</span> Série dedicada com a marca</li>
+      <li><span class="tier-check">✓</span> Conteúdo personalizado</li>
+      <li><span class="tier-check">✓</span> Presença em todos os eventos</li>
+      <li><span class="tier-check">✓</span> Relatórios mensais de impacto</li>
+      <li><span class="tier-check">✓</span> Exclusividade na categoria</li>
+    </ul>
+    <a href="#contact" class="tier-cta tier-cta-secondary">Falar Connosco</a>
+  </div>
+</div>
+
+<div class="sponsors-logos-section animate-on-scroll">
+  <p>Parceiros Futuros</p>
+  <div class="sponsor-logos-placeholder">
+    <div class="sponsor-logo-box">A tua marca</div>
+    <div class="sponsor-logo-box">A tua marca</div>
+    <div class="sponsor-logo-box">A tua marca</div>
+    <div class="sponsor-logo-box">A tua marca</div>
+    <div class="sponsor-logo-box">A tua marca</div>
+  </div>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+
+<section id="about">
+  <div class="about-content">
+    <div class="about-text animate-on-scroll">
+      <p class="section-tag">// A Missão</p>
+      <h2 class="section-title" style="margin-bottom:32px;">POR QUE THE VAULT?</h2>
+      <p>
+        A música angolana e lusófona tem histórias que precisam de ser contadas. Por trás de cada hit, existe um processo criativo, uma inspiração, uma luta — e essas histórias merecem ser preservadas.
+      </p>
+      <p>
+        The Vault é a plataforma que abre o cofre. Inspirada no modelo da Genius, criamos um espaço onde rappers, cantores, produtores, diretores e todos os criativos por trás da música podem contar as suas histórias, sem filtros.
+      </p>
+      <p>
+        Mais do que entretenimento, estamos a construir um arquivo cultural da música angolana para as gerações futuras.
+      </p>
+      <div class="about-stats">
+        <div class="about-stat-item">
+          <p class="stat-number">40+</p>
+          <p class="stat-label">Artistas Confirmados</p>
+        </div>
+        <div class="about-stat-item">
+          <p class="stat-number">6</p>
+          <p class="stat-label">Séries Originais</p>
+        </div>
+        <div class="about-stat-item">
+          <p class="stat-number">5</p>
+          <p class="stat-label">Plataformas</p>
+        </div>
+        <div class="about-stat-item">
+          <p class="stat-number">∞</p>
+          <p class="stat-label">Histórias por Contar</p>
+        </div>
+      </div>
+    </div>
+    <div class="about-visual animate-on-scroll">
+      <div class="about-visual-box box1">
+        <span>THE VAULT</span>
+      </div>
+      <div class="about-visual-box box2">
+        <p class="box2-quote">"A música é a linguagem universal. As histórias por trás dela são o que a torna humana."</p>
+        <p class="box2-author">— The Vault Team</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT FORM -->
+
+<section id="contact">
+  <div class="contact-layout">
+    <div class="contact-info animate-on-scroll">
+      <p class="section-tag">// Contacto</p>
+      <h2 class="section-title" style="margin-bottom:32px;">VAMOS CONVERSAR</h2>
+      <p>Quer sejas um artista interessado em participar, uma marca que quer ser parceira, ou um fã com uma ideia — queremos ouvir-te.</p>
+
+```
+  <ul class="contact-methods">
+    <li>
+      <div class="contact-icon">📧</div>
+      <div class="contact-method-info">
+        <p class="cm-label">Email</p>
+        <p class="cm-value">contacto@thevault.ao</p>
+      </div>
+    </li>
+    <li>
+      <div class="contact-icon">📱</div>
+      <div class="contact-method-info">
+        <p class="cm-label">Instagram</p>
+        <p class="cm-value">@thevault.ao</p>
+      </div>
+    </li>
+    <li>
+      <div class="contact-icon">▶</div>
+      <div class="contact-method-info">
+        <p class="cm-label">YouTube</p>
+        <p class="cm-value">The Vault AO</p>
+      </div>
+    </li>
+    <li>
+      <div class="contact-icon">📍</div>
+      <div class="contact-method-info">
+        <p class="cm-label">Localização</p>
+        <p class="cm-value">Luanda, Angola</p>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<div class="contact-form-card animate-on-scroll">
+  <div id="contactFormContent">
+    <h3>ENVIA-NOS UMA MENSAGEM</h3>
+    <p>Respondemos em até 48 horas.</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" placeholder="O teu nome" id="formName">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="email@exemplo.com" id="formEmail">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tipo de Contacto</label>
+      <select id="formType">
+        <option value="">Seleciona uma opção</option>
+        <option value="sponsor">Parceria / Sponsorship</option>
+        <option value="artist">Quero participar como artista</option>
+        <option value="press">Imprensa / Media</option>
+        <option value="collab">Colaboração criativa</option>
+        <option value="general">Pergunta geral</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Empresa / Marca (opcional)</label>
+      <input type="text" placeholder="Nome da empresa ou marca" id="formCompany">
+    </div>
+    <div class="form-group">
+      <label>Mensagem</label>
+      <textarea placeholder="Conta-nos mais sobre o que tens em mente..." id="formMessage"></textarea>
+    </div>
+    <button class="form-submit" onclick="submitContactForm()">Enviar Mensagem</button>
+  </div>
+  <div class="form-success" id="formSuccess">
+    <p class="success-icon">✓</p>
+    <h4>MENSAGEM ENVIADA!</h4>
+    <p>Obrigado pelo contacto. A nossa equipa irá responder-te em breve.</p>
+  </div>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+
+<section id="newsletter">
+  <div class="newsletter-content animate-on-scroll">
+    <p class="section-tag">// Comunidade</p>
+    <h2 class="section-title">JUNTA-TE AO THE VAULT</h2>
+    <p>Sê o primeiro a saber quando novos episódios são lançados, quando novos artistas entram no cofre, e recebe conteúdo exclusivo.</p>
+    <form class="newsletter-form" onsubmit="handleSubscribe(event)">
+      <input type="email" placeholder="O teu email..." required id="emailInput">
+      <button type="submit">Inscrever</button>
+    </form>
+    <p class="newsletter-note" id="subscribeNote">Sem spam. Só música e cultura.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">THE V<span style="color:var(--red)">.</span>AULT</a>
+      <p>Explorando as histórias por trás da música angolana e lusófona. Uma plataforma dedicada à cultura, criatividade e verdade.</p>
+      <div class="footer-social">
+        <a href="#" title="YouTube">▶</a>
+        <a href="#" title="Instagram">◉</a>
+        <a href="#" title="TikTok">♪</a>
+        <a href="#" title="Facebook">f</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>SÉRIES</h4>
+      <ul>
+        <li><a href="#">Verified</a></li>
+        <li><a href="#">Framework</a></li>
+        <li><a href="#">Deconstructed</a></li>
+        <li><a href="#">The Cosign</a></li>
+        <li><a href="#">Open Mic</a></li>
+        <li><a href="#">O Cofre</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>PLATAFORMA</h4>
+      <ul>
+        <li><a href="#about">Sobre Nós</a></li>
+        <li><a href="#contact">Contacto</a></li>
+        <li><a href="#sponsors">Parcerias</a></li>
+        <li><a href="#mediakit">Media Kit</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>LEGAL</h4>
+      <ul>
+        <li><a href="#">Termos de Uso</a></li>
+        <li><a href="#">Privacidade</a></li>
+        <li><a href="#">Cookies</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 The Vault. Todos os direitos reservados.</p>
+    <p>Feito em Angola 🇦🇴</p>
+  </div>
+</footer>
+
+<!-- VIDEO MODAL -->
+
+<div class="modal-overlay" id="videoModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeVideo()">✕</button>
+    <iframe id="videoFrame" src="" allowfullscreen allow="autoplay"></iframe>
+  </div>
+</div>
+
+<!-- ARTIST MODAL -->
+
+<div class="artist-modal-overlay" id="artistModal">
+  <div class="artist-modal">
+    <button class="modal-close" onclick="closeArtistModal()">✕</button>
+    <div class="artist-modal-header">
+      <div class="artist-modal-avatar" id="artistAvatar"></div>
+      <div>
+        <h2 class="artist-modal-name" id="artistName"></h2>
+        <p class="artist-modal-role" id="artistRole"></p>
+      </div>
+    </div>
+    <div class="artist-modal-body">
+      <p id="artistBio"></p>
+      <div class="artist-modal-episodes">
+        <h4>EPISÓDIOS PLANEADOS</h4>
+        <div id="artistEpisodes"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ========== ARTIST DATA ==========
+  const artists = [
+    { name: "Nga", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Prodígio", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Don Altifridi", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Tio Edson", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Eva Rap Diva", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Plutónio", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "T-Rex", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "OG Vuino", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Dezzy", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Okenio M", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Biura", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Sandocan", role: "Rapper", category: "rapper", color: "#D94E41" },
+    { name: "Paulo Flores", role: "OG — Lenda", category: "og", color: "#C4923A" },
+    { name: "Yola Semedo", role: "OG — Lenda", category: "og", color: "#C4923A" },
+    { name: "Matias Damásio", role: "OG — Artista", category: "og", color: "#C4923A" },
+    { name: "C4 Pedro", role: "OG — Artista", category: "og", color: "#C4923A" },
+    { name: "Anselmo Ralph", role: "OG — Artista", category: "og", color: "#C4923A" },
+    { name: "Pérola", role: "OG — Artista", category: "og", color: "#C4923A" },
+    { name: "Big Nelo", role: "OG — Artista", category: "og", color: "#C4923A" },
+    { name: "Yola Araújo", role: "OG — Artista", category: "og", color: "#C4923A" },
+    { name: "Noite e Dia", role: "Kuduro", category: "kuduro", color: "#3A8EC4" },
+    { name: "Os Lambas", role: "Kuduro", category: "kuduro", color: "#3A8EC4" },
+    { name: "Bruno M", role: "Kuduro", category: "kuduro", color: "#3A8EC4" },
+    { name: "Jessica Pitbull", role: "Kuduro", category: "kuduro", color: "#3A8EC4" },
+    { name: "Black Spygo", role: "Produtor", category: "producer", color: "#7B3AC4" },
+    { name: "Teo No Beat", role: "Produtor", category: "producer", color: "#7B3AC4" },
+    { name: "Felitchek Pro", role: "Filmmaker", category: "filmmaker", color: "#3AC47B" },
+    { name: "Holyly", role: "Filmmaker", category: "filmmaker", color: "#3AC47B" },
+    { name: "Filó Filmmaker", role: "Filmmaker", category: "filmmaker", color: "#3AC47B" },
+    { name: "Chelsea Dinorah", role: "Hits", category: "rapper", color: "#D94E41" },
+    { name: "Kim Praise", role: "Fotógrafo", category: "photographer", color: "#C43A8E" },
+  ];
+
+  const bios = {
+    "Nga": "Uma das vozes mais influentes do rap angolano, Nga tem moldado o cenário musical com líricas poderosas e uma presença que transcende gerações.",
+    "Prodígio": "Mestre das palavras e dos flows complexos, Prodígio é sinónimo de rap de qualidade em Angola e na lusofonia.",
+    "Paulo Flores": "Lenda viva da música angolana, Paulo Flores é um dos artistas mais respeitados e influentes de toda a lusofonia.",
+    "Eva Rap Diva": "Pioneira do rap feminino em Angola, Eva Rap Diva abriu portas e quebrou barreiras na indústria musical angolana.",
+    "C4 Pedro": "Um dos artistas mais versáteis e populares de Angola, C4 Pedro conquistou o público lusófono com hits inesquecíveis.",
+    "Anselmo Ralph": "O rei do romantismo angolano, Anselmo Ralph é um dos artistas com maior alcance internacional da música angolana.",
+    "Yola Semedo": "Voz icónica da música angolana, Yola Semedo é uma das artistas femininas mais amadas e respeitadas do país.",
+    "Matias Damásio": "Com uma voz inconfundível e composições que tocam a alma, Matias Damásio é um dos maiores talentos de Angola.",
+    "Plutónio": "Rapper com uma carreira marcada pela autenticidade e por letras que refletem a realidade das ruas angolanas.",
+    "Black Spygo": "Um dos produtores mais talentosos da nova geração angolana, responsável por beats que definiram o som do rap moderno em Angola.",
+    "Noite e Dia": "Reis do kuduro, Noite e Dia levaram o ritmo angolano ao mundo com energia contagiante.",
+    "Os Lambas": "Grupo icónico do kuduro angolano, Os Lambas são sinónimo de festa e cultura de rua.",
+  };
+
+  // ========== RENDER ARTISTS ==========
+  function renderArtists() {
+    const grid = document.getElementById('artistsGrid');
+    grid.innerHTML = artists.map((artist, i) => `
+      <div class="artist-card animate-on-scroll" onclick="openArtistModal(${i})" style="animation-delay:${i * 0.05}s">
+        <span class="artist-initial">${artist.name.charAt(0)}</span>
+        <div class="artist-overlay">
+          <h3>${artist.name}</h3>
+          <p class="artist-role">${artist.role}</p>
+        </div>
+      </div>
+    `).join('');
+    observeElements();
+  }
+
+  // ========== VIDEO MODAL ==========
+  function openVideo(url) {
+    const modal = document.getElementById('videoModal');
+    document.getElementById('videoFrame').src = url + '?autoplay=1';
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeVideo() {
+    document.getElementById('videoFrame').src = '';
+    document.getElementById('videoModal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // ========== ARTIST MODAL ==========
+  function openArtistModal(index) {
+    const artist = artists[index];
+    const modal = document.getElementById('artistModal');
+    document.getElementById('artistAvatar').textContent = artist.name.charAt(0);
+    document.getElementById('artistAvatar').style.background = artist.color;
+    document.getElementById('artistName').textContent = artist.name;
+    document.getElementById('artistRole').textContent = artist.role;
+    document.getElementById('artistBio').textContent = bios[artist.name] || `${artist.name} é um dos talentos confirmados para o The Vault. Em breve, mais informações sobre a sua participação.`;
+    
+    const seriesMap = {
+      rapper: ['Verified — Significado das Letras', 'The Cosign — Avaliando a Nova Geração'],
+      og: ['The Cosign — Passando a Tocha', 'O Cofre — Histórias da Indústria'],
+      kuduro: ['Verified — A Essência do Kuduro', 'Open Mic — Performance Ao Vivo'],
+      producer: ['Deconstructed — Por Trás do Beat', 'Framework — O Processo Criativo'],
+      filmmaker: ['Framework — Bastidores do Videoclipe', 'O Cofre — Momentos Icónicos'],
+      photographer: ['O Cofre — A Imagem da Música', 'Framework — Visão Artística'],
+    };
+
+    const episodes = seriesMap[artist.category] || ['Em breve...'];
+    document.getElementById('artistEpisodes').innerHTML = episodes.map(ep => `
+      <div class="artist-modal-ep-item">
+        <span class="ep-dot"></span>
+        <span>${ep}</span>
+      </div>
+    `).join('');
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeArtistModal() {
+    document.getElementById('artistModal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // ========== CONTACT FORM ==========
+  function submitContactForm() {
+    const name = document.getElementById('formName').value;
+    const email = document.getElementById('formEmail').value;
+    const type = document.getElementById('formType').value;
+    const message = document.getElementById('formMessage').value;
+
+    if (!name || !email || !type || !message) {
+      alert('Por favor, preenche todos os campos obrigatórios.');
+      return;
+    }
+
+    // In production, connect this to Formspree, Netlify Forms, or your backend
+    document.getElementById('contactFormContent').style.display = 'none';
+    document.getElementById('formSuccess').classList.add('active');
+
+    setTimeout(() => {
+      document.getElementById('contactFormContent').style.display = 'block';
+      document.getElementById('formSuccess').classList.remove('active');
+      document.getElementById('formName').value = '';
+      document.getElementById('formEmail').value = '';
+      document.getElementById('formType').value = '';
+      document.getElementById('formCompany').value = '';
+      document.getElementById('formMessage').value = '';
+    }, 5000);
+  }
+
+  // ========== NEWSLETTER ==========
+  function handleSubscribe(e) {
+    e.preventDefault();
+    const email = document.getElementById('emailInput').value;
+    const note = document.getElementById('subscribeNote');
+    note.textContent = `✓ ${email} registado! Bem-vindo ao The Vault.`;
+    note.style.color = '#4CAF50';
+    document.getElementById('emailInput').value = '';
+    setTimeout(() => {
+      note.textContent = 'Sem spam. Só música e cultura.';
+      note.style.color = '';
+    }, 4000);
+  }
+
+  // ========== TRAILER ==========
+  function loadTrailer() {
+    // Replace 'YOUR_VIDEO_ID' with your actual YouTube trailer ID when ready
+    alert('O trailer está a ser produzido! Inscreve-te na newsletter para seres notificado quando for lançado.');
+  }
+
+  // ========== SCROLL ANIMATIONS ==========
+  function observeElements() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+            // Animate audience bars
+            entry.target.querySelectorAll('.audience-bar-fill').forEach(bar => {
+              bar.style.width = bar.dataset.width;
+            });
+          }, i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+  }
+
+  // ========== MOBILE MENU ==========
+  function toggleMobileMenu() {
+    document.getElementById('mobileNav').classList.toggle('active');
+  }
+
+  // ========== CLICK OUTSIDE MODALS ==========
+  document.getElementById('videoModal').addEventListener('click', function(e) { if (e.target === this) closeVideo(); });
+  document.getElementById('artistModal').addEventListener('click', function(e) { if (e.target === this) closeArtistModal(); });
+
+  // ========== NAV SCROLL ==========
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.background = window.scrollY > 100 ? 'rgba(10,10,10,0.95)' : 'rgba(10,10,10,0.85)';
+  });
+
+  // ========== INIT ==========
+  document.addEventListener('DOMContentLoaded', () => {
+    renderArtists();
+    observeElements();
+  });
+</script>
+
+</body>
+</html>
